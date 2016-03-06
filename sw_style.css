@@ -50,6 +50,8 @@ header.menu h1 {
 header.menu h1.kyle {
     background: linear-gradient(to right, #00BCD4, #26C6DA, #00BCD4) #00BCD4;
     text-shadow:#84FFFF;
+    border:1px solid #006064;
+    border-style:solid none;
 }
 @media only screen and (max-device-width: 480px) {
     header.menu {

@@ -15,7 +15,7 @@
                         <!--<li><a href="/bottle/status">Directory</a></li>-->
                         <li><a href="//dalingk.co">dalingk.co Home</a></li>
                         <li><a href="/">Links Home</a></li>
-                        <li><a href="/user">My Links</a></li>
+                        <li><a href="/user">Your Links</a></li>
                         <li><a href="/new">Add a link</a></li>
                         <!--
                             This tag intentionally left blank for ease of copying
