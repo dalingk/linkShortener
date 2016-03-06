@@ -47,6 +47,10 @@ header.menu h1 {
     color:white;
     font-weight:normal;
 }
+header.menu h1.kyle {
+    background: linear-gradient(to right, #00BCD4, #26C6DA, #00BCD4) #00BCD4;
+    text-shadow:#84FFFF;
+}
 @media only screen and (max-device-width: 480px) {
     header.menu {
         min-width:auto;
@@ -143,9 +147,8 @@ dl.stats div {
 dl.stats div dt {
     text-align:right;
     flex:1;
-    border-right:1px solid #607D8B;
     padding:8px;
-    color:#424242;
+    opacity:.38;
 }
 dl.stats div dd {
     flex:4;
@@ -159,4 +162,10 @@ dl.stats div dd {
     color:red;
     text-align:center;
     font-weight:bold;
+}
+img.full {
+    display:block;
+    margin:0 auto;
+    border-radius:8px;
+    box-shadow:2px 2px 8px black;
 }
