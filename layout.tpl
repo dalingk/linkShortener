@@ -3,9 +3,10 @@
     <head>
         <title>{{title or 'Links'}} - dalingk.co</title>
         <link rel="stylesheet" type="text/css" href="/sw_style.css">
-        <link href='https://fonts.googleapis.com/css?family=Roboto:400,700,500,100' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Roboto:400,700,500,100' rel='stylesheet' type='text/css' media="none" onload="if(media!='all')media='all'">
+        <noscript><link href='https://fonts.googleapis.com/css?family=Roboto:400,700,500,100' rel='stylesheet' type='text/css'></noscript>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src="/stats.js"></script>
+        <script async src="/stats.js"></script>
     </head>
     <body>
         <div id="body">
