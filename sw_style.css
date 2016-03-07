@@ -141,6 +141,8 @@ dl.stats div dd {
     flex:4;
     padding:8px;
     margin-left:0;
+    overflow:hidden;
+    word-wrap:break-word;
 }
 .center {
     text-align:center;
