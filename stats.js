@@ -1,5 +1,4 @@
 "use strict";
-
 function main () {
     var links = document.getElementById("content").getElementsByTagName("a");
     var links_length = links.length;
@@ -12,11 +11,15 @@ function navigate(e) {
     if (document.getElementById("stats")) {
         if (document.getElementById("stats").checked) {
             e.preventDefault();
-                window.location = "/stats/" + e.srcElement.href.match("\/l\/(.+)$")[1];
+            window.location = "/stats/" + e.srcElement.href.match("\/l\/(.+)$")[1];
         }
     }
 }
 
 if (window.addEventListener) {
-    window.addEventListener("DOMContentLoaded", main, false);
+    if (document.readyState !== "loading") {
+        main();
+    } else {
+        window.addEventListener("DOMContentLoaded", main, false);
+    }
 }
