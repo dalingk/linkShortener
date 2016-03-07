@@ -53,21 +53,6 @@ header.menu h1.kyle {
     border:1px solid #006064;
     border-style:solid none;
 }
-@media only screen and (max-device-width: 480px) {
-    header.menu {
-        min-width:auto;
-    }
-    div#body, header.menu nav {
-        min-width:auto;
-    }
-    header.menu nav ul {
-        flex-direction:column;
-        box-shadow: 0 0 8px black;
-    }
-    header.menu nav ul li {
-        border-bottom:1px solid grey;
-    }
-}
 /*section#content*/ div#body {
     box-sizing: border-box;
     box-shadow: 0 -16px 16px black;
@@ -170,4 +155,22 @@ img.full {
     margin:0 auto;
     border-radius:8px;
     box-shadow:2px 2px 8px black;
+}
+@media only screen and (max-width: 480px) {
+    header.menu {
+        min-width:auto;
+    }
+    div#body, header.menu nav {
+        min-width:auto;
+    }
+    header.menu nav ul {
+        flex-direction:column;
+        box-shadow: 0 0 8px black;
+    }
+    header.menu nav ul li {
+        border-bottom:1px solid grey;
+    }
+    dl.stats div dd {
+        flex:2;
+    }
 }
