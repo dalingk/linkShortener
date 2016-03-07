@@ -37,18 +37,14 @@
                 <dd>{{stats['createdIP']}}</dd>
             </div>
             %end
-        </dl>
-    </div>
-    %if 'numViews' in stats and stats['numViews'] > 0:
-    <div>
-        <dl class="stats">
+            %if 'numViews' in stats and stats['numViews'] > 0:
             <div><dt>Views</dt><dd>{{stats['numViews']}}</dd></div>
             <div><dt>Last Viewed</dt><dd>{{stats['lastView']}} ago</dd></div>
             <div><dt>IP of last viewer</dt><dd>{{stats['lastViewIP']}}</dd></div>
+            %end
         </dl>
     </div>
 </section>
-%end
 %else:
 <label class="stats"><input type="checkbox" id="stats" checked="checked"> Show stats</label>
 <section class="links">
