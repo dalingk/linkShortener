@@ -17,7 +17,7 @@
             </div>
             <div>
                 <dt>Tiny URL</dt>
-                <dd><a href="https://dalingk.co/l/{{stats['tiny']}}">https://dalingk.co/l/{{stats['tiny']}}</a></dd>
+                <dd><a href="/l/{{stats['tiny']}}">{{stats['tiny']}}</a></dd>
             </div>
             %if "createdBy" in stats:
             <div>
@@ -46,10 +46,10 @@
     </div>
 </section>
 %else:
-<label class="stats"><input type="checkbox" id="stats" checked="checked"> Show stats</label>
+<label class="stats"><input type="checkbox" id="stats"> Go to links</label>
 <section class="links">
     %for x in links:
-    <a href="/l/{{x[2]}}" title="{{x[1]}}">{{x[0]}}</a>
+    <a href="/stats/{{x[2]}}" title="{{x[1]}}">{{x[0]}}</a>
     %end
 </section>
 %end

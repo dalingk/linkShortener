@@ -11,7 +11,7 @@ function navigate(e) {
     if (document.getElementById("stats")) {
         if (document.getElementById("stats").checked) {
             e.preventDefault();
-            window.location = "/stats/" + e.srcElement.href.match("\/l\/(.+)$")[1];
+            window.location = "/l/" + e.srcElement.href.match("\/stats\/(.+)$")[1];
         }
     }
 }
