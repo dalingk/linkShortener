@@ -8,11 +8,6 @@ div#body {
     min-width: 480px;
     margin: 0 auto;
 }
-/*section#content {
-    max-width: 1000px;
-    min-width: 480px;
-    margin: 0 auto;
-}*/
 header.menu nav ul {
     padding:0;
     margin:0;
@@ -53,7 +48,7 @@ header.menu h1.kyle {
     border:1px solid #006064;
     border-style:solid none;
 }
-/*section#content*/ div#body {
+div#body {
     box-sizing: border-box;
     box-shadow: 0 -16px 16px black;
 }
@@ -109,8 +104,8 @@ label.stats {
 form.add label {
     display:flex;
 }
-form.add label span, form.add input, form.add header, form.add textarea {
-    padding:.5em .75em;
+form.add label span, form.add input, form.add header, form.add textarea, form.add span.holder{
+    padding:.5rem .75rem;
     border:1px solid grey;
     border-bottom-style:none;
 }
@@ -118,7 +113,7 @@ form.add label span{
     flex:1;
     border-right:none;
 }
-form.add input, form.add textarea{
+form.add input, form.add textarea, form.add span.holder {
     flex:2;
 }
 form.add input:focus, form.add textarea:focus {

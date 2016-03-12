@@ -17,7 +17,7 @@
             </div>
             <div>
                 <dt>Tiny URL</dt>
-                <dd><a href="/l/{{stats['tiny']}}">{{stats['tiny']}}</a></dd>
+                <dd><a href="/l/{{stats['tiny']}}" rel="nofollow">{{stats['tiny']}}</a></dd>
             </div>
             %if "createdBy" in stats:
             <div>

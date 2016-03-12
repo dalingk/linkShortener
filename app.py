@@ -198,9 +198,10 @@ def add():
         userIP = bottle.request.remote_addr
         name = bottle.request.forms.get('name')
         tiny = genTiny()
+        private = 1 if bottle.request.forms.get('private') else 0
         cnx = mysql.connector.connect(**dbargs)
         c = cnx.cursor()
-        c.execute('INSERT INTO links (url, createdTime, createdIP, tiny, name, userid) VALUES (%s,%s,%s,%s,%s,%s);', (url, datetime.datetime.now().isoformat(), userIP, tiny, name, PID))
+        c.execute('INSERT INTO links (url, createdTime, createdIP, tiny, name, userid, private) VALUES (%s,%s,%s,%s,%s,%s,%s);', (url, datetime.datetime.now().isoformat(), userIP, tiny, name, PID, private))
         cnx.commit()
         bottle.TEMPLATES.clear()
         c.close()
