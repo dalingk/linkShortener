@@ -55,7 +55,7 @@
 <label class="stats"><input type="checkbox" id="stats"> Go to links</label>
 <section class="links">
     %for x in links:
-    <a href="/stats/{{x[2]}}" title="{{x[1]}}">{{x[0]}}</a>
+    <a href="/stats/{{x[2]}}" title="{{x[1]}}" {{!"class=\"private\"" if len(x) > 3 and x[3] == 1 else ""}}>{{x[0]}}</a>
     %end
 </section>
 %end

@@ -91,6 +91,10 @@ header.small, h1.small, h2.small {
     background:url(linkicons/noise.png) rgb(20,20,20);
     transition:all .1s;
 }
+.links a.private:after {
+    content:" *";
+    color:red;
+}
 .links a:hover, .links a:active {
     box-shadow:2px 2px 8px 2px black;
 }
