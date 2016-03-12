@@ -7,7 +7,7 @@ app = application = bottle.Bottle(catchall=True)
 def getLinks():
     cnx = mysql.connector.connect(**dbargs)
     c = cnx.cursor()
-    c.execute("SELECT name, url, tiny FROM links WHERE name != '' ORDER BY createdTime desc;")
+    c.execute("SELECT name, url, tiny FROM links WHERE name != '' AND private=false ORDER BY createdTime desc;")
     l = c.fetchall()
     c.close()
     cnx.close()
@@ -78,7 +78,7 @@ def getUserBySession():
 def getLinksByPID(PID):
     cnx = mysql.connector.connect(**dbargs)
     c = cnx.cursor()
-    c.execute("SELECT name, url, tiny FROM links WHERE userid=%s ORDER BY createdTime desc;",(PID,))
+    c.execute("SELECT name, url, tiny, private FROM links WHERE userid=%s ORDER BY createdTime desc;",(PID,))
     links = c.fetchall()
     c.close()
     cnx.close()
@@ -123,6 +123,7 @@ def stats(l):
         stats['createdBy'] = l[0][3]
         stats['createdTime'] = timeFormat(dateutil.parser.parse(l[0][4]))
         stats['createdIP'] = l[0][5]
+        stats['private'] = l[0][6]
     if numViews > 0:
         stats['lastView'] = timeFormat(dateutil.parser.parse(s[0][0]))
         stats['lastViewIP'] = s[0][1]
@@ -165,12 +166,18 @@ def index(tiny):
 def index(tiny):
     cnx = mysql.connector.connect(**dbargs)
     c = cnx.cursor()
-    c.execute("SELECT name, url, tiny, users.email, createdTime, createdIP FROM links, users WHERE tiny=%s COLLATE utf8_bin AND userid = users.PID;", (tiny,))
+    c.execute("SELECT name, url, tiny, users.email, createdTime, createdIP, private, userid FROM links, users WHERE tiny=%s COLLATE utf8_bin AND userid = users.PID;", (tiny,))
     l = c.fetchall()
     c.close()
     cnx.close()
     if len(l) > 0:
-        return bottle.template('links', title="Stats for {}".format(tiny), stats=stats(l))
+        if l[0][6] == 0 or l[0][7] == getUserBySession():
+            return bottle.template('links', title="Stats for {}".format(tiny), stats=stats(l))
+        else:
+            return bottle.template('links', title="Private link", error="This link is private.")
+    else:
+        return bottle.template('links', title="Unknown link", error="That link wasn't found.")
+
 
 @app.get("/new")
 def new():

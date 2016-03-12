@@ -25,6 +25,12 @@
                 <dd>{{stats['createdBy']}}</dd>
             </div>
             %end
+            %if 'private' in stats:
+            <div title="Note: Private links are can still be shared, but do not show up in results">
+                <dt>Private</dt>
+                <dd>{{"Yes" if stats['private'] == 1 else "No"}}</dd>
+            </div>
+            %end
             %if "createdTime" in stats:
             <div>
                 <dt>Created</dt>
