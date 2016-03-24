@@ -1,11 +1,10 @@
 import bottle, datetime, random, string, re, mysql.connector, dateutil.parser, bcrypt, os, hmac
 
-dbargs = {'user':'python','password':'pythonDBpassword','unix_socket':'/var/run/mysqld/mysqld.sock','database':'python_links', 'pool_name':'linksPool','pool_size':2}
 cookie_secret = b'7c46fab786a2d67d1e8d2147750b5a428805e217148694ce15d50f0268624fb9786800a5ed58e416ec5b9f14221f777ddbb5f1ed55600d1cf2b1df14adca8f85'
 app = application = bottle.Bottle(catchall=True)
 
 def getLinks():
-    cnx = mysql.connector.connect(**dbargs)
+    cnx = mysql.connector.connect(option_files="mysql.cnf")
     c = cnx.cursor()
     c.execute("SELECT name, url, tiny FROM links WHERE name != '' AND private=false ORDER BY createdTime desc;")
     l = c.fetchall()
@@ -13,7 +12,7 @@ def getLinks():
     cnx.close()
     return l
 def emailNotExists(email):
-    cnx = mysql.connector.connect(**dbargs)
+    cnx = mysql.connector.connect(option_files="mysql.cnf")
     c = cnx.cursor()
     c.execute("SELECT 1 FROM users WHERE email LIKE %s LIMIT 1;", (email,))
     c.fetchall()
@@ -22,7 +21,7 @@ def emailNotExists(email):
     cnx.close()
     return count == 0
 def createUser(email, password):
-    cnx = mysql.connector.connect(**dbargs)
+    cnx = mysql.connector.connect(option_files="mysql.cnf")
     c = cnx.cursor()
     pwhash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
     c.execute("INSERT INTO users (email, pwhash) VALUES (%s,%s)", (email, pwhash))
@@ -30,7 +29,7 @@ def createUser(email, password):
     c.close()
     cnx.close()
 def validLogon(email, password):
-    cnx = mysql.connector.connect(**dbargs)
+    cnx = mysql.connector.connect(option_files="mysql.cnf")
     c = cnx.cursor()
     c.execute("SELECT email, pwhash FROM users WHERE email=%s LIMIT 1;", (email,))
     user = c.fetchall()
@@ -42,7 +41,7 @@ def validLogon(email, password):
     else:
         return False
 def loginUser(email):
-    cnx = mysql.connector.connect(**dbargs)
+    cnx = mysql.connector.connect(option_files="mysql.cnf")
     c = cnx.cursor()
     c.execute("SELECT PID FROM users WHERE email=%s;", (email,))
     pid = c.fetchone()[0]
@@ -60,23 +59,31 @@ def loginUser(email):
     c.close()
     cnx.close()
     bottle.response.set_cookie("session", session, secret=cookie_secret, max_age=15552000) #180 days
+def logoutUser(pid, session):
+    cnx = mysql.connector.connect(option_files="mysql.cnf")
+    c = cnx.cursor()
+    c.execute("DELETE FROM sessions WHERE PID=%s and session=%s", (pid, session))
+    cnx.commit()
+    c.close()
+    cnx.close()
+    bottle.response.set_cookie("session", "")
 
 # Returns the user's pid or false if the user is not logged in
 def getUserBySession():
     session = bottle.request.get_cookie("session", secret=cookie_secret)
     if session:
-        cnx = mysql.connector.connect(**dbargs)
+        cnx = mysql.connector.connect(option_files="mysql.cnf")
         c = cnx.cursor()
         c.execute("SELECT PID FROM sessions WHERE session=%s;", (session,));
-        pid = c.fetchone()[0]
+        u = c.fetchall()
         if c.rowcount == 1:
             c.close()
             cnx.close()
-            return pid
+            return u[0][0]
     bottle.response.set_cookie("session", "")
     return False
 def getLinksByPID(PID):
-    cnx = mysql.connector.connect(**dbargs)
+    cnx = mysql.connector.connect(option_files="mysql.cnf")
     c = cnx.cursor()
     c.execute("SELECT name, url, tiny, private FROM links WHERE userid=%s ORDER BY createdTime desc;",(PID,))
     links = c.fetchall()
@@ -84,7 +91,7 @@ def getLinksByPID(PID):
     cnx.close()
     return links
 def getEmail(PID):
-    cnx = mysql.connector.connect(**dbargs)
+    cnx = mysql.connector.connect(option_files="mysql.cnf")
     c = cnx.cursor()
     c.execute("SELECT email FROM users WHERE PID=%s;",(PID,))
     emails = c.fetchall()
@@ -94,7 +101,7 @@ def getEmail(PID):
 def genTiny():
     tinyLength = 6;
     tiny = "".join(random.SystemRandom().choice(string.ascii_letters + string.digits) for x in range(tinyLength))
-    cnx = mysql.connector.connect(**dbargs)
+    cnx = mysql.connector.connect(option_fles="mysql.cnf")
     c = cnx.cursor()
     c.execute("SELECT tiny FROM links WHERE tiny = %s COLLATE utf8_bin;", (tiny,))
     rows = c.fetchall()
@@ -104,7 +111,7 @@ def genTiny():
         tiny = genTiny()
     return tiny
 def stats(l):
-    cnx = mysql.connector.connect(**dbargs)
+    cnx = mysql.connector.connect(option_files="mysql.cnf")
     c = cnx.cursor()
     c.execute("SELECT v.viewTime, v.viewIP FROM links l, views v WHERE l.tiny = v.tiny AND l.tiny = %s COLLATE utf8_bin ORDER BY v.viewTime DESC LIMIT 1;", (l[0][2],))
     s = c.fetchall()
@@ -146,7 +153,7 @@ def index(tiny):
     pid = getUserBySession()
     if not pid:
         pid = 0
-    cnx = mysql.connector.connect(**dbargs)
+    cnx = mysql.connector.connect(option_files="mysql.cnf")
     c = cnx.cursor()
     c.execute("SELECT name, url, tiny, createdTime, createdIP FROM links WHERE tiny=%s COLLATE utf8_bin;", (tiny,))
     l = c.fetchall()
@@ -164,7 +171,7 @@ def index(tiny):
 
 @app.route("/stats/<tiny>")
 def index(tiny):
-    cnx = mysql.connector.connect(**dbargs)
+    cnx = mysql.connector.connect(option_files="mysql.cnf")
     c = cnx.cursor()
     c.execute("SELECT name, url, tiny, users.email, createdTime, createdIP, private, userid FROM links, users WHERE tiny=%s COLLATE utf8_bin AND userid = users.PID;", (tiny,))
     l = c.fetchall()
@@ -199,7 +206,7 @@ def add():
         name = bottle.request.forms.get('name')
         tiny = genTiny()
         private = 1 if bottle.request.forms.get('private') else 0
-        cnx = mysql.connector.connect(**dbargs)
+        cnx = mysql.connector.connect(option_files="mysql.cnf")
         c = cnx.cursor()
         c.execute('INSERT INTO links (url, createdTime, createdIP, tiny, name, userid, private) VALUES (%s,%s,%s,%s,%s,%s,%s);', (url, datetime.datetime.now().isoformat(), userIP, tiny, name, PID, private))
         cnx.commit()
@@ -256,6 +263,13 @@ def login():
         bcrypt.hashpw("abcdefghijklmnopqrstuvwxyz".encode("utf-8"), bcrypt.gensalt())
         return bottle.template('login', title="Login", error="Incorrect email or password.")
     return "Submitting login request"
+@app.route("/logout")
+def logout():
+    userpid = getUserBySession()
+    session = bottle.request.get_cookie("session", secret=cookie_secret)
+    if userpid and session:
+        logoutUser(userpid, session)
+    bottle.redirect("/")
 
 @app.get("/user")
 def user():
@@ -266,7 +280,7 @@ def user():
         return bottle.template("links", title = "Links for {}".format(email), links = links)
     else:
         bottle.redirect("/login")
-    return "User pid is {}".format(getUserBySession())
+    return bottle.template("links", title="Not logged in", error="You must be logged in to view links you have submitted.")
 
 if __name__ == "__main__":
     @app.route("/<filename>")
