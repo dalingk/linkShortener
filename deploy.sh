@@ -10,7 +10,7 @@ chmod 444 $bottle_files
 cd ..
 cd $static_dir
 chmod 444 $static_files
-read -p "Restart uwsgi?" yn
+read -p "Restart uwsgi? " yn
 if echo $yn | grep -iq "^y"; then
     sudo service uwsgi reload
 fi

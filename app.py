@@ -13,7 +13,7 @@ app = application = bottle.Bottle(catchall=True)
 def getLinks():
     cnx = mysql.connector.connect(option_files="mysql.cnf")
     c = cnx.cursor()
-    c.execute("SELECT name, url, tiny FROM links WHERE name != '' AND private=false ORDER BY createdTime desc;")
+    c.execute("SELECT name, url, tiny FROM links WHERE private=false ORDER BY createdTime desc;")
     l = c.fetchall()
     c.close()
     cnx.close()
