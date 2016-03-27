@@ -1,6 +1,13 @@
 import bottle, datetime, random, string, re, mysql.connector, dateutil.parser, bcrypt, os, hmac
 
-cookie_secret = b'7c46fab786a2d67d1e8d2147750b5a428805e217148694ce15d50f0268624fb9786800a5ed58e416ec5b9f14221f777ddbb5f1ed55600d1cf2b1df14adca8f85'
+secret_file = "secret"
+if not os.path.isfile(secret_file):
+    f = open(secret_file, "wb")
+    f.write(os.urandom(16))
+    f.close()
+f = open(secret_file, "rb")
+cookie_secret = f.read()
+f.close()
 app = application = bottle.Bottle(catchall=True)
 
 def getLinks():
@@ -76,11 +83,13 @@ def getUserBySession():
         c = cnx.cursor()
         c.execute("SELECT PID FROM sessions WHERE session=%s;", (session,));
         u = c.fetchall()
-        if c.rowcount == 1:
+        if len(u) == 1:
             c.close()
             cnx.close()
             return u[0][0]
-    bottle.response.set_cookie("session", "")
+        c.close()
+        cnx.close()
+        bottle.response.set_cookie("session", "")
     return False
 def getLinksByPID(PID):
     cnx = mysql.connector.connect(option_files="mysql.cnf")
