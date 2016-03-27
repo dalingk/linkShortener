@@ -110,7 +110,7 @@ def getEmail(PID):
 def genTiny():
     tinyLength = 6;
     tiny = "".join(random.SystemRandom().choice(string.ascii_letters + string.digits) for x in range(tinyLength))
-    cnx = mysql.connector.connect(option_fles="mysql.cnf")
+    cnx = mysql.connector.connect(option_files="mysql.cnf")
     c = cnx.cursor()
     c.execute("SELECT tiny FROM links WHERE tiny = %s COLLATE utf8_bin;", (tiny,))
     rows = c.fetchall()
