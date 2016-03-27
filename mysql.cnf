@@ -1,0 +1,7 @@
+[client]
+database=<Link Database>
+user=<Database User>
+password=<User Password>
+host=localhost
+pool_name=linksPool
+pool_size=2
