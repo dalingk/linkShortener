@@ -134,7 +134,8 @@ dl.stats div dt {
     text-align:right;
     flex:1;
     padding:8px;
-    opacity:.38;
+    color:#9e9e9e;
+    color:rgba(0,0,0,.38);
 }
 dl.stats div dd {
     flex:4;
