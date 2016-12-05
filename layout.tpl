@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>{{title or 'Links'}} - dalingk.co</title>
+        <title>{{title or 'Links'}} - dalingk.com</title>
         <link rel="stylesheet" type="text/css" href="/sw_style.css">
         <link href='https://fonts.googleapis.com/css?family=Roboto:400,700,500,100' rel='stylesheet' type='text/css' media="none" onload="if(media!='all')media='all'">
         <noscript><link href='https://fonts.googleapis.com/css?family=Roboto:400,700,500,100' rel='stylesheet' type='text/css'></noscript>
@@ -14,7 +14,7 @@
                 <nav class="main">
                     <ul>
                         <!--<li><a href="/bottle/status">Directory</a></li>-->
-                        <li><a href="//dalingk.co">dalingk.co Home</a></li>
+                        <li><a href="//dalingk.com">dalingk.com Home</a></li>
                         <li><a href="/">Links Home</a></li>
                         <li><a href="/user">Your Links</a></li>
                         <li><a href="/new">Add a link</a></li>
