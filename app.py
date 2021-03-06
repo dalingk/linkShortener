@@ -1,4 +1,6 @@
-import bottle, datetime, random, string, re, mysql.connector, dateutil.parser, bcrypt, os, hmac
+import bottle, datetime, random, string, re, dateutil.parser, bcrypt, os, hmac
+import json
+import mariadb
 
 secret_file = "secret"
 if not os.path.isfile(secret_file):
@@ -9,9 +11,15 @@ f = open(secret_file, "rb")
 cookie_secret = f.read()
 f.close()
 app = application = bottle.Bottle(catchall=True)
+with open(os.path.join(os.path.dirname(__file__), 'mysql.json'), 'r') as conf:
+    db_config = json.load(conf)
+
+def getDBConfiguration():
+    '''Get database configuration.'''
+    return db_config
 
 def getLinks():
-    cnx = mysql.connector.connect(option_files="mysql.cnf")
+    cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
     c.execute("SELECT name, url, tiny FROM links WHERE private=false ORDER BY createdTime desc;")
     l = c.fetchall()
@@ -19,7 +27,7 @@ def getLinks():
     cnx.close()
     return l
 def emailNotExists(email):
-    cnx = mysql.connector.connect(option_files="mysql.cnf")
+    cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
     c.execute("SELECT 1 FROM users WHERE email LIKE %s LIMIT 1;", (email,))
     c.fetchall()
@@ -28,7 +36,7 @@ def emailNotExists(email):
     cnx.close()
     return count == 0
 def createUser(email, password):
-    cnx = mysql.connector.connect(option_files="mysql.cnf")
+    cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
     pwhash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
     c.execute("INSERT INTO users (email, pwhash) VALUES (%s,%s)", (email, pwhash))
@@ -36,7 +44,7 @@ def createUser(email, password):
     c.close()
     cnx.close()
 def validLogon(email, password):
-    cnx = mysql.connector.connect(option_files="mysql.cnf")
+    cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
     c.execute("SELECT email, pwhash FROM users WHERE email=%s LIMIT 1;", (email,))
     user = c.fetchall()
@@ -48,7 +56,7 @@ def validLogon(email, password):
     else:
         return False
 def loginUser(email):
-    cnx = mysql.connector.connect(option_files="mysql.cnf")
+    cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
     c.execute("SELECT PID FROM users WHERE email=%s;", (email,))
     pid = c.fetchone()[0]
@@ -67,7 +75,7 @@ def loginUser(email):
     cnx.close()
     bottle.response.set_cookie("session", session, secret=cookie_secret, max_age=15552000) #180 days
 def logoutUser(pid, session):
-    cnx = mysql.connector.connect(option_files="mysql.cnf")
+    cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
     c.execute("DELETE FROM sessions WHERE PID=%s and session=%s", (pid, session))
     cnx.commit()
@@ -79,7 +87,7 @@ def logoutUser(pid, session):
 def getUserBySession():
     session = bottle.request.get_cookie("session", secret=cookie_secret)
     if session:
-        cnx = mysql.connector.connect(option_files="mysql.cnf")
+        cnx = mariadb.connect(**getDBConfiguration())
         c = cnx.cursor()
         c.execute("SELECT PID FROM sessions WHERE session=%s;", (session,));
         u = c.fetchall()
@@ -92,7 +100,7 @@ def getUserBySession():
         bottle.response.set_cookie("session", "")
     return False
 def getLinksByPID(PID):
-    cnx = mysql.connector.connect(option_files="mysql.cnf")
+    cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
     c.execute("SELECT name, url, tiny, private FROM links WHERE userid=%s ORDER BY createdTime desc;",(PID,))
     links = c.fetchall()
@@ -100,7 +108,7 @@ def getLinksByPID(PID):
     cnx.close()
     return links
 def getEmail(PID):
-    cnx = mysql.connector.connect(option_files="mysql.cnf")
+    cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
     c.execute("SELECT email FROM users WHERE PID=%s;",(PID,))
     emails = c.fetchall()
@@ -110,7 +118,7 @@ def getEmail(PID):
 def genTiny():
     tinyLength = 6;
     tiny = "".join(random.SystemRandom().choice(string.ascii_letters + string.digits) for x in range(tinyLength))
-    cnx = mysql.connector.connect(option_files="mysql.cnf")
+    cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
     c.execute("SELECT tiny FROM links WHERE tiny = %s COLLATE utf8_bin;", (tiny,))
     rows = c.fetchall()
@@ -120,7 +128,7 @@ def genTiny():
         tiny = genTiny()
     return tiny
 def stats(l):
-    cnx = mysql.connector.connect(option_files="mysql.cnf")
+    cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
     c.execute("SELECT v.viewTime, v.viewIP FROM links l, views v WHERE l.tiny = v.tiny AND l.tiny = %s COLLATE utf8_bin ORDER BY v.viewTime DESC LIMIT 1;", (l[0][2],))
     s = c.fetchall()
@@ -162,7 +170,7 @@ def index(tiny):
     pid = getUserBySession()
     if not pid:
         pid = 0
-    cnx = mysql.connector.connect(option_files="mysql.cnf")
+    cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
     c.execute("SELECT name, url, tiny, createdTime, createdIP FROM links WHERE tiny=%s COLLATE utf8_bin;", (tiny,))
     l = c.fetchall()
@@ -180,7 +188,7 @@ def index(tiny):
 
 @app.route("/stats/<tiny>")
 def index(tiny):
-    cnx = mysql.connector.connect(option_files="mysql.cnf")
+    cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
     c.execute("SELECT name, url, tiny, users.email, createdTime, createdIP, private, userid FROM links, users WHERE tiny=%s COLLATE utf8_bin AND userid = users.PID;", (tiny,))
     l = c.fetchall()
@@ -215,7 +223,7 @@ def add():
         name = bottle.request.forms.get('name')
         tiny = genTiny()
         private = 1 if bottle.request.forms.get('private') else 0
-        cnx = mysql.connector.connect(option_files="mysql.cnf")
+        cnx = mariadb.connect(**getDBConfiguration())
         c = cnx.cursor()
         c.execute('INSERT INTO links (url, createdTime, createdIP, tiny, name, userid, private) VALUES (%s,%s,%s,%s,%s,%s,%s);', (url, datetime.datetime.now().isoformat(), userIP, tiny, name, PID, private))
         cnx.commit()
