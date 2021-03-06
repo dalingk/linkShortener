@@ -120,7 +120,7 @@ def genTiny():
     tiny = "".join(random.SystemRandom().choice(string.ascii_letters + string.digits) for x in range(tinyLength))
     cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
-    c.execute("SELECT tiny FROM links WHERE tiny = %s COLLATE utf8_bin;", (tiny,))
+    c.execute("SELECT tiny FROM links WHERE tiny = %s", (tiny,))
     rows = c.fetchall()
     c.close()
     cnx.close()
@@ -130,9 +130,9 @@ def genTiny():
 def stats(l):
     cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
-    c.execute("SELECT v.viewTime, v.viewIP FROM links l, views v WHERE l.tiny = v.tiny AND l.tiny = %s COLLATE utf8_bin ORDER BY v.viewTime DESC LIMIT 1;", (l[0][2],))
+    c.execute("SELECT v.viewTime, v.viewIP FROM links l, views v WHERE l.tiny = v.tiny AND l.tiny = %s ORDER BY v.viewTime DESC LIMIT 1;", (l[0][2],))
     s = c.fetchall()
-    c.execute('SELECT count(tiny) FROM views WHERE tiny = %s COLLATE utf8_bin', (l[0][2],))
+    c.execute('SELECT count(tiny) FROM views WHERE tiny = %s', (l[0][2],))
     numViews = c.fetchall()[0][0]
     c.close()
     cnx.close()
@@ -172,7 +172,7 @@ def index(tiny):
         pid = 0
     cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
-    c.execute("SELECT name, url, tiny, createdTime, createdIP FROM links WHERE tiny=%s COLLATE utf8_bin;", (tiny,))
+    c.execute("SELECT name, url, tiny, createdTime, createdIP FROM links WHERE tiny=%s;", (tiny,))
     l = c.fetchall()
     if len(l) > 0:
         c.execute('INSERT INTO views (viewTime, viewIP, tiny, pid) VALUES (%s,%s,%s,%s);', (datetime.datetime.now().isoformat(),bottle.request.remote_addr, l[0][2], pid))
@@ -190,7 +190,7 @@ def index(tiny):
 def index(tiny):
     cnx = mariadb.connect(**getDBConfiguration())
     c = cnx.cursor()
-    c.execute("SELECT name, url, tiny, users.email, createdTime, createdIP, private, userid FROM links, users WHERE tiny=%s COLLATE utf8_bin AND userid = users.PID;", (tiny,))
+    c.execute("SELECT name, url, tiny, users.email, createdTime, createdIP, private, userid FROM links, users WHERE tiny=%s AND userid = users.PID;", (tiny,))
     l = c.fetchall()
     c.close()
     cnx.close()
