@@ -1,7 +1,7 @@
-bcrypt==3.2.0
-bottle==0.12.19
-cffi==1.15.0
+bcrypt==4.0.1
+bottle==0.12.25
+cffi==1.15.1
 mariadb==1.0.9
-pycparser==2.14
+pycparser==2.21
 python-dateutil==2.8.2
-six==1.10.0
+six==1.16.0
